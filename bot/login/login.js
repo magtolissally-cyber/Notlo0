@@ -15,7 +15,7 @@ const path = defaultRequire("path");
 const readline = defaultRequire("readline");
 const fs = defaultRequire("fs-extra");
 const toptp = defaultRequire("totp-generator");
-const { login } = defaultRequire("goat-fca");
+const { login } = defaultRequire("baler-fca");
 const qr = new (defaultRequire("qrcode-reader"));
 const Canvas = defaultRequire("canvas");
 const https = defaultRequire("https");
@@ -31,17 +31,6 @@ async function getName(userID) {
 }
 
 
-function compareVersion(version1, version2) {
-        const v1 = version1.split(".");
-        const v2 = version2.split(".");
-        for (let i = 0; i < 3; i++) {
-                if (parseInt(v1[i]) > parseInt(v2[i]))
-                        return 1; // version1 > version2
-                if (parseInt(v1[i]) < parseInt(v2[i]))
-                        return -1; // version1 < version2
-        }
-        return 0; // version1 = version2
-}
 
 const { writeFileSync, readFileSync, existsSync, watch } = require("fs-extra");
 const handlerWhenListenHasError = require("./handlerWhenListenHasError.js");
@@ -630,7 +619,7 @@ async function startBot(loginWithEmail) {
         const currentVersion = require("../../package.json").version;
         const tooOldVersion = (await axios.get("https://raw.githubusercontent.com/ntkhang03/Goat-Bot-V2-Storage/main/tooOldVersions.txt")).data || "0.0.0";
         // nếu version cũ hơn
-        if ([-1, 0].includes(compareVersion(currentVersion, tooOldVersion))) {
+        if ([-1, 0].includes(global.utils.compareVersion(currentVersion, tooOldVersion))) {
                 log.err("VERSION", getText('version', 'tooOldVersion', colors.yellowBright('node update')));
                 process.exit();
         }
@@ -731,11 +720,11 @@ async function startBot(loginWithEmail) {
                         // ———————————————— NKX-FCA: ANTI-SUSPENSION & HEALTH ———————————————— //
                         try {
                                 const fcaConfig = require(`${process.cwd()}/fca-config.json`);
-                                const { globalAntiSuspension } = require("nkx-fca/src/utils/antiSuspension");
+                                const { globalAntiSuspension } = require("baler-fca/src/utils/antiSuspension");
 
                                 if (fcaConfig.antiSuspension?.enabled !== false && fcaConfig.antiSuspension?.warmupOnStart !== false) {
                                         globalAntiSuspension.enableWarmup();
-                                        log.info("NKX-FCA", "Anti-suspension warmup mode enabled (limits rate for 20 min on fresh start)");
+                                        log.info("baler-fca", "Anti-suspension warmup mode enabled (limits rate for 20 min on fresh start)");
                                 }
 
                                 if (typeof api.getHealthStatus === "function") {
